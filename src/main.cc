@@ -3,18 +3,17 @@
 #include <SDL2/SDL_image.h>
 #include <string>
 
-static bool init();
-static bool loadMedia();
-static void close();
-static SDL_Surface *loadSurface(const char *img_path);
-
+static bool         init();
+static bool         loadMedia();
+static void         close();
+static SDL_Texture* loadTexture(const char *img_path);
 
 const int SCREEN_W = 640;
 const int SCREEN_H = 480;
 
-SDL_Window  *gWindow_w = NULL;
-SDL_Surface *gWindow_s = NULL;
-SDL_Surface *gImage_s  = NULL;
+SDL_Window   *gWindow_w   = NULL;
+SDL_Renderer *gRenderer_r = NULL;
+SDL_Texture  *gTexture_t  = NULL;
 
 int main(int argc, char **argv)
 {
@@ -74,6 +73,16 @@ bool init()
 				return false;
 		}
 
+		gRenderer_r = SDL_CreateRenderer(gWindow_w, -1, SDL_RENDERER_ACCELERATED);
+		if(gRenderer_r == NULL)
+		{
+				printf("SDL could not CreateRenderer. SDL_Error:%s\n", SDL_GetError());
+				return false;
+		}
+
+		SDL_SetRenderDrawColor(gRenderer_r, 0xFF, 0xFF, 0xFF, 0xFF);
+
+
 		int img_flags = IMG_INIT_JPG;
 		int init_flags = IMG_Init(img_flags);
 		if((init_flags & img_flags) != img_flags)
@@ -91,7 +100,7 @@ bool loadMedia()
 		gImage_s = loadSurface("../res/img1.jpg");
 		if(gImage_s == NULL)
 		{
-				printf("SDL could not loadSurface(). SDL_Error:%s\n", SDL_GetError());
+				printf("SDL could not loadSurface(). SDL_Error:%s\n", SDL_GetError()); 
 				return false;
 		}
 		return true;
