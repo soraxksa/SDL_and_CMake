@@ -2,6 +2,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <string>
+#include "../include/Texture.h"
 
 static bool         init();
 static bool         loadMedia();
@@ -13,7 +14,8 @@ const int SCREEN_H = 480;
 
 SDL_Window   *gWindow_w   = NULL;
 SDL_Renderer *gRenderer_r = NULL;
-SDL_Texture  *gTexture_t  = NULL;
+MY::Texture   gPlayer;
+MY::Texture   gBackGround;
 
 int main(int argc, char **argv)
 {
@@ -42,8 +44,12 @@ int main(int argc, char **argv)
 						}
 				}
 
+				SDL_SetRenderDrawColor(gRenderer_r, 0xFF, 0xFF, 0xFF, 0xFF);
 				SDL_RenderClear(gRenderer_r);
-				SDL_RenderCopy(gRenderer_r, gTexture_t, NULL, NULL);
+
+				gBackGround.render(0, 0);
+				gPlayer.render(240, 190);
+
 				SDL_RenderPresent(gRenderer_r);
 
 		}
@@ -80,7 +86,7 @@ bool init()
 		SDL_SetRenderDrawColor(gRenderer_r, 0xFF, 0xFF, 0xFF, 0xFF);
 
 
-		int img_flags = IMG_INIT_JPG;
+		int img_flags = IMG_INIT_PNG | IMG_INIT_JPG;
 		int init_flags = IMG_Init(img_flags);
 		if((init_flags & img_flags) != img_flags)
 		{
@@ -93,12 +99,18 @@ bool init()
 
 bool loadMedia()
 {
-		gTexture_t = loadTexture("../res/img1.jpg");
-		if(gTexture_t == NULL)
+		if( !gPlayer.loadFromFile("../res/foo.png") )
 		{
 				printf("SDL could not loadTexture(). SDL_Error:%s\n", SDL_GetError()); 
 				return false;
 		}
+
+ 		if( !gBackGround.loadFromFile("../res/background.png") )
+		{
+				printf("SDL could not loadTexture(). SDL_Error:%s\n", SDL_GetError()); 
+				return false;
+		}
+ 
 		return true;
 }
 
@@ -129,8 +141,8 @@ static SDL_Texture* loadTexture(const char *img_path)
 
 void close()
 {
-		SDL_DestroyTexture(gTexture_t);
-		gTexture_t = NULL;
+		gPlayer.free();
+		gBackGround.free();
 
 		SDL_DestroyRenderer(gRenderer_r);
 		SDL_DestroyWindow(gWindow_w);

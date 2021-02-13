@@ -1,4 +1,4 @@
-#ifdef TEXTURE_H
+#ifndef TEXTURE_H
 #define TEXTURE_H
 
 #include <string>
@@ -7,6 +7,7 @@
 #include <cstdint>
 
 
+extern SDL_Renderer *gRenderer_r;
 
 namespace MY{
 
