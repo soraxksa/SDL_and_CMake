@@ -42,13 +42,10 @@ int main(int argc, char **argv)
 						}
 				}
 
-				SDL_Rect rect;
-				rect.x = 0;
-				rect.y = 0;
-				rect.w = SCREEN_W;
-				rect.h = SCREEN_H;
-				SDL_BlitScaled(gImage_s, NULL, gWindow_s, &rect);
-				SDL_UpdateWindowSurface(gWindow_w);
+				SDL_RenderClear(gRenderer_r);
+				SDL_RenderCopy(gRenderer_r, gTexture_t, NULL, NULL);
+				SDL_RenderPresent(gRenderer_r);
+
 		}
 
 		close();
@@ -91,51 +88,55 @@ bool init()
 				return false;
 		}
 
-		gWindow_s = SDL_GetWindowSurface(gWindow_w);
 		return true;
 }
 
 bool loadMedia()
 {
-		gImage_s = loadSurface("../res/img1.jpg");
-		if(gImage_s == NULL)
+		gTexture_t = loadTexture("../res/img1.jpg");
+		if(gTexture_t == NULL)
 		{
-				printf("SDL could not loadSurface(). SDL_Error:%s\n", SDL_GetError()); 
+				printf("SDL could not loadTexture(). SDL_Error:%s\n", SDL_GetError()); 
 				return false;
 		}
 		return true;
 }
 
-static SDL_Surface *loadSurface(const char *img_path)
+
+static SDL_Texture* loadTexture(const char *img_path)
 {
-		SDL_Surface *window_format_surface = NULL;
+		SDL_Texture *new_texture = NULL;
 
-		SDL_Surface *loaded_surface = IMG_Load(img_path);
-		if(loaded_surface == NULL)
+		SDL_Surface *temp_surface = IMG_Load(img_path);
+		if(temp_surface == NULL)
 		{
-				fprintf(stderr, "ERROR in IMG_load(%s). IMG_Error:%s\n", img_path, IMG_GetError());
+				printf("Error in IMG_Load(%s). SDL_Error:%s\n", img_path, SDL_GetError());
 				return NULL;
 		}
 
-		window_format_surface = SDL_ConvertSurface(loaded_surface, gWindow_s->format, 0);
-		if(window_format_surface == NULL)
+		new_texture = SDL_CreateTextureFromSurface(gRenderer_r, temp_surface);
+		if(new_texture == NULL)
 		{
-				fprintf(stderr, "ERROR in SDL_ConvertSurface() in loadSurface(%s). SDL_Error:%s\n", img_path, IMG_GetError());
-				SDL_FreeSurface(loaded_surface);
+				printf("Error in CreateTextureFromSurface() in loadTexutre(%s). SDL_Error:%s\n", img_path, SDL_GetError());
+				SDL_FreeSurface(temp_surface);
 				return NULL;
 		}
-		SDL_FreeSurface(loaded_surface);
 
-		return window_format_surface;
+		SDL_FreeSurface(temp_surface);
+		return new_texture;
 }
+
 
 void close()
 {
-		SDL_FreeSurface(gImage_s);
-		gImage_s = NULL;
+		SDL_DestroyTexture(gTexture_t);
+		gTexture_t = NULL;
 
+		SDL_DestroyRenderer(gRenderer_r);
 		SDL_DestroyWindow(gWindow_w);
-		gWindow_w = NULL;
+		gWindow_w   = NULL;
+		gRenderer_r = NULL;
 
+		IMG_Quit();
 		SDL_Quit();
 }
