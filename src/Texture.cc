@@ -37,9 +37,9 @@ namespace MY{
 						return false;
 				}
 
-				Texture::mWidth   = temp_surface->w;
-				Texture::mHeight  = temp_surface->h;
-				Texture::mTexture = new_texture;
+				mWidth   = temp_surface->w;
+				mHeight  = temp_surface->h;
+				mTexture = new_texture;
 				SDL_FreeSurface(temp_surface);
 				
 				return true;
@@ -48,29 +48,34 @@ namespace MY{
 
 		void Texture::free()
 		{
-				if(Texture::mTexture != NULL)
+				if(mTexture != NULL)
 				{
-						SDL_DestroyTexture(Texture::mTexture);
+						SDL_DestroyTexture(mTexture);
 						mTexture = NULL;
 						mWidth   = 0;
 						mHeight  = 0;
 				}
 		}
 
-		void Texture::render(int32_t x, int32_t y)
+		void Texture::render(int32_t x, int32_t y, SDL_Rect *clip)
 		{
-				SDL_Rect rect = {x, y, Texture::mWidth, Texture::mHeight};
-				SDL_RenderCopy(gRenderer_r, Texture::mTexture, NULL, &rect);
+				SDL_Rect render_rect = {x, y, mWidth, mHeight};
+				if(clip != NULL)
+				{
+						render_rect.w = clip->w;
+						render_rect.h = clip->h;
+				}
+				SDL_RenderCopy(gRenderer_r, mTexture, clip, &render_rect);
 		}
 
 		int32_t Texture::getWidth() const
 		{
-				return Texture::mWidth;
+				return mWidth;
 		}
 
 		int32_t Texture::getHeight() const
 		{
-				return Texture::mHeight;
+				return mHeight;
 		}
 
 };

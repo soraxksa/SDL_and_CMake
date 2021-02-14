@@ -21,7 +21,7 @@ namespace MY{
 
 						void free();
 
-						void render(int32_t x, int32_t y);
+						void render(int32_t x, int32_t y, SDL_Rect *clip = NULL);
 
 						int32_t getWidth()  const;
 						int32_t getHeight() const;
